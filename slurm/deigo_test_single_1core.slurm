@@ -7,7 +7,7 @@
 
 module load python/3.7.3
 
-# modify output directories
+# modify output directories (make sure they exist)
 output_flash_dir=/flash/TaniU/fede
 output_bucket_dir=/bucket/TaniU/Members/fede/test_deigo
 
@@ -28,7 +28,7 @@ source .venv/bin/activate
 python -m deigo.test_deigo \
 --seed ${seed} \
 --cores ${num_cores} \
---dir $tempdir \
+--dir ${tempdir} \
 
 # copy our result back to Bucket. We use "scp" to copy the data 
 # back  as bucket isn't writable directly from the compute nodes.
