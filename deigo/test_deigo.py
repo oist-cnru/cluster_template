@@ -53,7 +53,8 @@ if __name__ == "__main__":
     if args.dir:    
         if not os.path.exists(args.dir):
             os.makedirs(args.dir)
-        output_file = os.path.join(args.dir, 'output.txt')
+        seed_pad = str(args.seed).zfill(3)
+        output_file = os.path.join(args.dir, f'output_{seed_pad}.txt')
 
     def log_info(s):
         print(s)
