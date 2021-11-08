@@ -32,7 +32,7 @@ python -m deigo.test_deigo \
 
 # copy our result back to Bucket. We use "scp" to copy the data 
 # back  as bucket isn't writable directly from the compute nodes.
-rsync -avq $tempdir/* deigo:${output_bucket_dir}
+rsync -avq ${tempdir}/* deigo:${output_bucket_dir}
 
 # Clean up by removing our temporary directory
 rm -r $tempdir
