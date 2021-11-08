@@ -50,8 +50,9 @@ if __name__ == "__main__":
         args.cores = len(os.sched_getaffinity(0))
 
     output_file = None
-    if args.dir:        
-        os.makedirs(args.dir)
+    if args.dir:    
+        if not os.path.exists(args.dir):
+            os.makedirs(args.dir)
         output_file = os.path.join(args.dir, 'output.txt')
 
     def log_info(s):
