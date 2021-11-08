@@ -43,7 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, required=True, help='Random seed')
     parser.add_argument('--cores', type=int, help='Number of cores')
-    parser.add_argument('--dir', type=int, help='Output directory')
+    parser.add_argument('--dir', type=str, help='Output directory')
     args = parser.parse_args()
 
     if args.cores is None:
