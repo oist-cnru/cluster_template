@@ -19,10 +19,10 @@ def main(output_dir):
     # 4 layers in order: sm, second (bottom), third, forth (top)
     layers = config['network']['layers']    
     
-    # changing w to last three layers with random values
-    new_w = np.random.uniform(low=0.0001, high=0.5, size=3) 
+    # changing w to last three layers with random values loguniform beweent 10^-4 and 1
+    new_w = np.float_power(10, np.random.uniform(low=-4, high=0, size=3))
     for i,l in enumerate(layers[1:]):
-        l['w'] = new_w[i]
+        l['w'] = float(new_w[i])
 
     output_config_file = os.path.join(output_dir, 'config.toml')
     with open(output_config_file, 'w') as fout:
