@@ -7,7 +7,7 @@ def main(output_dir):
     config_file = 'example/example_config.toml'    
     config = toml.load(config_file)
 
-    config['dataset_path'] = os.join(
+    config['dataset_path'] = os.path.join(
         os.path.expanduser('~'), 
         'Code', 'cluster_template', 'example', 'dataset_5x11x2.npy'
     )
@@ -24,7 +24,7 @@ def main(output_dir):
     for i,l in enumerate(layers[1:]):
         l['w'] = new_w[i]
 
-    output_config_file = os.join(output_dir, 'config.toml')
+    output_config_file = os.path.join(output_dir, 'config.toml')
     with open(output_config_file, 'w') as fout:
         toml.dump(config, fout)
     # print(toml.dumps(config))
