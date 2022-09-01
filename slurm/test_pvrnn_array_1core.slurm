@@ -24,7 +24,7 @@ output_bucket_dir=/bucket/TaniU/Members/${dir_user}/test_pvrnn
 # create a temporary directory for this job and save the name
 # SLURM_JOB_ID at the end is to make sure the dir is unique
 job_id=`printf "%04d" ${SLURM_ARRAY_TASK_ID}`_${SLURM_JOB_ID}
-tempdir=${output_flash_dir}/seed_${seed_dir}
+tempdir=${output_flash_dir}/${job_id}
 mkdir ${tempdir}
 
 
