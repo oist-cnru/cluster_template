@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=short
+#SBATCH --partition=compute
 #SBATCH --time=0:10:00
 #SBATCH --job-name=test_pvrnn
 #SBATCH --mem=5G
@@ -18,9 +18,8 @@ mkdir -p ${output_flash_dir}
 PVRNN_SAVE_DIR=${output_flash_dir}
 
 # setting final output directory (in bucket)
-# and let's make sure they exist
+# this needs to be created manually (nodes can't write to bucket)
 output_bucket_dir=/bucket/TaniU/Members/fede/test_pvrnn
-mkdir -p ${output_bucket_dir}
 
 # create a temporary directory for this job and save the name
 # SLURM_JOB_ID at the end is to make sure the dir is unique
