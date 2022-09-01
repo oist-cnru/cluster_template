@@ -7,7 +7,7 @@ def main(output_dir):
     config_file = 'example/example_config.toml'    
     config = toml.load(config_file)
 
-    config['dataset_path'] = os.path.join(
+    config['dataset']['dataset_path'] = os.path.join(
         os.path.expanduser('~'), 
         'Code', 'cluster_template', 'example', 'dataset_5x11x2.npy'
     )
