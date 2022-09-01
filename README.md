@@ -24,7 +24,7 @@
 5. If you need to test pvrnn you need to set it up in the curren environment, e.g.,
    ```
    cd ../LibPvrnn
-   ./rebuild.py
+   ./rebuild.py --target deigo
    ```
 6. Exit from the computing node
    ```

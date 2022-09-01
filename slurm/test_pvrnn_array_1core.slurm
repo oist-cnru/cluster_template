@@ -35,7 +35,11 @@ mkdir ${tempdir}
 cd ~/Code/cluster_template
 source .venv/bin/activate
 
-python -m deigo.pvrnn_deigo
+# running python to compile new config.toml
+python -m deigo.pvrnn_deigo --dir ${output_flash_dir}
+
+# runnning pvrnn on new config.toml
+pvrnn train example/example_config.toml
 
 # copy our result back to Bucket. We use "scp" to copy the data 
 # back  as bucket isn't writable directly from the compute nodes.

@@ -1,6 +1,9 @@
+import os
 import toml
+import argparse
+import numpy as np
 
-def main():
+def main(output_dir):
     config_file = 'example/example_config.toml'    
     config = toml.load(config_file)
 
@@ -11,19 +14,19 @@ def main():
     # 4 layers in order: sm, second (bottom), third, forth (top)
     layers = config['network']['layers']    
     
-    # changing w to last three layers
-    new_w = [0.2, 0.3, 0.4]
+    # changing w to last three layers with random values
+    new_w = np.random.uniform(low=0.0001, high=0.5, size=3) 
     for i,l in enumerate(layers[1:]):
         l['w'] = new_w[i]
 
-    new_config_file = 'example/auto_config.toml'
-    with open(new_config_file, 'w') as fout:
+    output_config_file = os.join(output_dir, 'config.toml')
+    with open(output_config_file, 'w') as fout:
         toml.dump(config, fout)
     # print(toml.dumps(config))
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--dir', type=str, help='Output directory')
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dir', type=str, help='Output directory')
+    args = parser.parse_args()
 
     main()
