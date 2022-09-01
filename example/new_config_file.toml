@@ -1,0 +1,83 @@
+[dataset]
+dataset_path = "./dataset_5x11x2.npy"
+n_seq = 4
+seq_len = 11
+output_size = 2
+minibatch_size = 2
+
+[network]
+sigma_min = 0.0
+sigma_max = 0.0
+zero_init = false
+[[network.layers]]
+type = "sm"
+sm_unit = 10
+sm_sigma = [ 0.05,]
+
+[[network.layers]]
+type = "pvrnn"
+d = 40
+z = 5
+tau = 2
+w = 0.2
+beta = 1.0
+
+[[network.layers]]
+type = "pvrnn"
+d = 20
+z = 3
+tau = 4
+w = 0.3
+beta = 1.0
+
+[[network.layers]]
+type = "pvrnn"
+d = 10
+z = 1
+tau = 8
+w = 0.4
+beta = 1.0
+
+[training]
+rng_seed = 1
+n_epoch = 100
+save_interval = 25
+save_directory = "example/coscos/train"
+backend = "cpp"
+
+[er]
+save_directory = "example/coscos/er"
+window_size = 4
+grow_window = true
+epoch_to_load = -1
+n_itr = 10
+pred_step = 4
+total_step = 4
+w = []
+beta = []
+backend = "cpp"
+
+[dataset.norm]
+enable = true
+raw_min = -0.5
+raw_max = 1.5
+min = 0.0
+max = 0.0
+
+[training.optimizer]
+name = "adam"
+
+[er.optimizer]
+name = "adam"
+
+[training.optimizer.adam]
+alpha = 0.001
+beta1 = 0.9
+beta2 = 0.999
+eps = 0.0001
+
+[er.optimizer.adam]
+alpha = 0.001
+beta1 = 0.9
+beta2 = 0.999
+eps = 0.0001

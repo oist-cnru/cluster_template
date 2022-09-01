@@ -1,0 +1,195 @@
+# This is a sample TOML configuration file for the PVRNN library
+
+
+### Training Data Structure ###
+[dataset]
+
+# Enable normalization of the data.
+    # The PVRNN library provides crude min/max normalization, which is quite sensitive to outliers.
+    # You can also normalize your training data however you choose, and feed it as raw data to
+    # PVRNN, in which case you should disable normalization.
+    # FIXME: not implemented, act as if == true right now.
+norm.enable = true
+
+# The normalization works by lineary transformining the data from the interval [norm.raw_min, norm.raw_max]
+# to the interval [norm.min + norm.margin, norm.max - norm.margin]
+
+# Bounds of the raw data (i.e. the data in the .npy file)
+    # If `raw_min < raw_max`, the network will use those values (without margin); in that case, if
+    # min(raw_data) < raw_min or raw_max < max(raw_data), an error will be generated.
+    # Else, if `raw_min` >= `raw_max`, the network will compute the min and max value automatically.
+norm.raw_min    = -0.5
+norm.raw_max    =  1.5
+
+# Bounds for the normalized interval.
+    # If `norm_min < norm_max`, then the config values are used.
+    # Else, default values are set depending of the output layer:
+    #   = [[0.25, 0.75] for the fully-connected layer
+    #   = [-0.5, 0.5]   for the softmax layers
+    # While the theoretical are [0, 1] and [-1, 1] for softmax and fc respectively,
+    # it will be hard for the output layer to generate the extremum values, and will create
+    # degenerated weight values in the network.
+    # For softmax, a [0, 1] normalization interval will also produce a bad inverse transform,
+    # will possibly serioulsy degenerated values.
+    # It is recommend, unless you know what you are doing, to leave `norm.min == norm.max = 0.0`,
+    # so the network chooses good general-purpose values.
+norm.min = 0.0
+norm.max = 0.0
+
+
+# Dataset path.
+    # Must point to a npy file containing a C-ordered array of shape:
+    #   (n_seq_disk, seq_len_disk, output_size_disk).
+    # If the path is relative, it will be calculated relative to the directory of this config file.
+dataset_path = './dataset_5x11x2.npy'  # this dataset is of shape (5, 11, 2)
+
+## Dimension of the training dataset
+    # The actual training dataset can be smaller in any dimension of the available data present
+    # in the `dataset_path` file.
+# Number of training sequences.
+    # Must be <= `n_seq_disk`. The first `n_seq` sequences of the array will be selected for training.
+    # If equal 0, will be set to the `n_seq_disk` value above.  FIXME: not implemented
+n_seq = 4         # we are using the first four sequences out of the five available in the dataset
+# Length of the training sequences.
+    # Must be <= `seq_len_disk`. The first `seq_len` timesteps of the array will be selected for training.
+    # If equal 0, will be set to the `seq_len_disk` value above.  FIXME: not implemented
+seq_len = 11      # here we're using all the timesteps present in the `dataset_path` file
+# Number of dimensions of the output features. This will be the output dimension of the network as well.
+    # Must be <= `output_size_disk`. The first `output_size` dimension will be selected for training.
+    # If equal 0, will be set to the `output_size_disk` value above.  FIXME: not implemented
+output_size = 2   # taking all dimensions, so no warning issued.
+
+# Size of a minibatch.
+    # Will error if larger than `n_seq`, to prevent mistakes.  FIXME: behavior not implemented
+    # Will warn if not a divisor of `n_seq`.  FIXME: behavior not implemented
+minibatch_size = 2
+
+
+### Network Structure ###
+[network]
+
+# Parameters for each of the layers, starting at the bottom layer.
+layers = [
+    # The first layer is the output layer. The type must be "sm" for softmax layer, or "fc", for
+    # fully-connected layer with tanh activation.
+    # The fully connected layer does not take any argument.
+    # The softmax output layer takes two:
+    #   - "sm_unit", the number of softmax dimensions per output dimension.
+    #   - "sm_sigma", the list of sigma values for the softmax transformation. The list must be of
+    #     size 1 or `output_size`. If of size 1, the value will be used for all output dimensions.
+    #     note: the sigma values for the softmax transformation have nothing to do with the sigma of
+    #     the A values or `sigma_min`/`sigma_max`.
+    { type = "sm", sm_unit = 10, sm_sigma = [0.05] },
+    # The next layers are the PVRNN layers. Currently, only the type "pvrnn" is implemented.
+    # The layers are listed from bottom to top (where bottom is the one closest to the output softmax layer)
+    # Usually the top layer will have the fewest d and z units, and the largest tau (time constant)
+    # They accept five arguments:
+    #   - d   : the number of d neurons in the layer.
+    #   - z   : the number of latent variables (and hence A mu/sigma values) in the layer.
+    #   - tau : the layer's time constant.
+    #   - w   : the metaprior.
+    #   - beta: the metaprior of the first timestep.
+    { type = "pvrnn", d = 40, z = 5, tau = 2, w = 0.001,   beta = 1.0 },  # second layer (bottom)
+    { type = "pvrnn", d = 20, z = 3, tau = 4, w = 0.01,  beta = 1.0 },  # third layer
+    { type = "pvrnn", d = 10, z = 1, tau = 8, w = 0.1, beta = 1.0 },  # fourth layer, (top)
+]
+
+# Sigma clipping
+    # Sigmas of the latent values has, in the past, exploded, leading to NaN values in gradient.
+    # If sigma_min < sigma_max, the A value is going to be clipped in [sigma_min, sigma_max].
+    # FIXME: currently not correctly implemented!
+sigma_min = 0.0
+sigma_max = 0.0
+
+# Zero initialization: TODO: document.
+zero_init = false
+
+
+### Training Parameters ###
+[training]
+
+# Random seed for the start of training
+rng_seed = 1
+# Number of epochs to train
+n_epoch = 100
+# Save the network weights and sequences every `save_interval` epochs
+    # If negative or zero, no intermediate save will be made.
+save_interval = 25
+# Where to save the training results (weights/sequences).
+    # This will resolve to: ${PVRNN_SAVE_DIR} / "results" / save_directory
+    # The directory will be created if necessary.
+save_directory = "example/coscos/train"
+# Training backend. "cpp", "pytorch" and "libtorch" are available,
+    # "pytorch" is not able to resume training yet (#FIXME).
+    # "libtorch" is not able to resume *or save* training yet (#FIXME).
+backend = "cpp"
+
+## Optimizer
+[training.optimizer]
+# Type of the optimizer. Only adam is supported right now.
+name = "adam"
+
+# Parameters for Adam optimizer.
+    # See https://arxiv.org/abs/1412.6980 for details
+    # Note: beta1 and beta2 have no relationship with the beta of the PVRNN layers.
+[training.optimizer.adam]
+alpha = 0.001
+beta1 = 0.9
+beta2 = 0.999
+# note: eps value is not currently taken into account (hardcoded to 1.0e-4) #FIXME
+eps   = 1.0e-4
+
+
+### Error Regression Parameters ###
+[er]
+# Where to save the error-regression results (weights/sequences).
+    # This will resolve to: ${PVRNN_SAVE_DIR} / "results" / save_directory
+    # The directory will be created if necessary.
+save_directory = "example/coscos/er"
+# Size of the error regression window, in number of timesteps
+    # Will error if larger than seq_len, to avoid mistakes.  FIXME: behavior not implemented
+window_size = 4
+# Whether to grow the window or not.
+    # If yes, the window start at size 0 and grow with each timestep by 1 until reaching
+    # `window_size`, after which it slide and keep the size of the window constant.
+    # If not, the window, and thus the ER, starts at timestep `window_size`, with a window of
+    # size `window_size`.  FIXME: check if correct, check error by 1 timestep in explanation.
+grow_window = true
+# Train epoch to load
+    # If < 0, will try to load the highest epoch.
+epoch_to_load = -1
+# Number of ER iterations per timestep
+n_itr = 10
+# how many prediction steps to perform after the current timestep #TODO: check edge cases.
+pred_step = 4
+# TODO: document
+total_step = 4
+# Metaprior values PVRNN for layers duing error regression
+    # must be of length len(network.layers) - 1, or 0
+    # if absent or the empty list, training values will be used. FIXME: implement behavior
+w = []
+# Beta values for PVRNN layers during error regression
+    # must be of length len(network.layers) - 1, or 0
+    # if absent or the empty list, training values will be used. FIXME: implement behavior
+beta = []
+# Backend for the ER computation. Only `cpp` is available.
+backend = "cpp"
+
+## Optimizer
+[er.optimizer]
+# Type of the optimizer. Only adam is supported right now.
+    # If not present, training values are used
+name = "adam"
+
+# Parameters for Adam optimizer.
+    # If not present, training values are used
+[er.optimizer.adam]
+alpha = 0.001
+beta1 = 0.9
+beta2 = 0.999
+# note: eps value is not currently taken into account (hardcoded to 1.0e-4) #FIXME
+eps   = 1.0e-4
+
+
+
+#TODO: add wKLD, erRandomInitA

@@ -21,7 +21,12 @@
     pip install -U pip
     pip install -r requirements.txt    
     ```
-5. Exit from the computing node
+5. If you need to test pvrnn you need to set it up in the curren environment, e.g.,
+   ```
+   cd ../LibPvrnn
+   ./rebuild.py
+   ```
+6. Exit from the computing node
    ```
    exit
    ```
