@@ -34,4 +34,4 @@ if __name__ == "__main__":
     parser.add_argument('--dir', type=str, help='Output directory')
     args = parser.parse_args()
 
-    main()
+    main(args.dir)
