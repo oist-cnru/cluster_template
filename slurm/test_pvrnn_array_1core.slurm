@@ -8,7 +8,7 @@
 
 module load python/3.10.2 gcc/11.2.1
 
-(change your user name)
+# (change your user name)
 dir_user=fede
 
 # setting working output directories (in flash)
@@ -19,7 +19,7 @@ PVRNN_SAVE_DIR=${output_flash_dir}
 
 # setting final output directory (in bucket)
 # this needs to be created manually (nodes can't write to bucket)
-output_bucket_dir=/bucket/TaniU/Members/fede/test_pvrnn
+output_bucket_dir=/bucket/TaniU/Members/${dir_user}/test_pvrnn
 
 # create a temporary directory for this job and save the name
 # SLURM_JOB_ID at the end is to make sure the dir is unique
