@@ -15,7 +15,6 @@ dir_user=fede
 # and let's make sure they exist
 output_flash_dir=/flash/TaniU/${dir_user}
 mkdir -p ${output_flash_dir}
-PVRNN_SAVE_DIR=${output_flash_dir}
 
 # setting final output directory (in bucket)
 # this needs to be created manually (nodes can't write to bucket)
@@ -27,6 +26,7 @@ job_id=`printf "%04d" ${SLURM_ARRAY_TASK_ID}`_${SLURM_JOB_ID}
 tempdir=${output_flash_dir}/${job_id}
 mkdir ${tempdir}
 
+PVRNN_SAVE_DIR=${tempdir}
 
 # Start 'myprog' 
 # we can have input from bucket if necessary
@@ -35,10 +35,10 @@ cd ~/Code/cluster_template
 source .venv/bin/activate
 
 # running python to compile new config.toml
-python -m deigo.pvrnn_deigo --dir ${output_flash_dir}
+python -m deigo.pvrnn_deigo --dir ${tempdir}
 
 # runnning pvrnn on new config.toml
-pvrnn train ${output_flash_dir}/config.toml
+pvrnn train ${tempdir}/config.toml
 
 # copy our result back to Bucket. We use "scp" to copy the data 
 # back  as bucket isn't writable directly from the compute nodes.
