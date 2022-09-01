@@ -7,6 +7,11 @@ def main(output_dir):
     config_file = 'example/example_config.toml'    
     config = toml.load(config_file)
 
+    config['dataset_path'] = os.join(
+        os.path.expanduser('~'), 
+        'Code', 'cluster_template', 'example', 'dataset_5x11x2.npy'
+    )
+
     # assuming ${PVRNN_SAVE_DIR} is already set
     # new output dir ( This will resolve to: ${PVRNN_SAVE_DIR} / "results" / save_directory)
     config['training']['save_directory'] = 'train'
