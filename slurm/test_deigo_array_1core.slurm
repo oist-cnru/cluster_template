@@ -4,7 +4,8 @@
 #SBATCH --job-name=test_deigo
 #SBATCH --mem=5G
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-100%20
+#SBATCH --output=test_arr_%A-%a.out
+#SBATCH --array=1-100%500
 
 module load python/3.7.3
 

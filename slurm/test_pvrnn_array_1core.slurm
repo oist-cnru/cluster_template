@@ -4,7 +4,8 @@
 #SBATCH --job-name=test_pvrnn
 #SBATCH --mem=5G
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-10%10
+#SBATCH --output=PVRNN_arr_%A-%a.out
+#SBATCH --array=1-10%500
 
 module load python/3.10.2 gcc/11.2.1
 
